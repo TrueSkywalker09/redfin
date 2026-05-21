@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Plus } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/authStore'
-import type { Project } from '@/lib/types'
+import type { Project, BankAccount } from '@/lib/types'
 import { CurrencyInput } from '@/components/ui/CurrencyInput'
 import { parseCurrencyInput } from '@/lib/format'
 
@@ -28,6 +28,24 @@ export function ContributionForm({
   const [loading, setLoading] = useState(false)
   const user = useAuthStore((s) => s.user)
   const profile = useAuthStore((s) => s.profile)
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
+  const [bankAccountId, setBankAccountId] = useState('')
+  const [destinoAccountId, setDestinoAccountId] = useState('')
+
+  useEffect(() => {
+    if (!profile?.household_id) return
+    supabase
+      .from('bank_accounts')
+      .select('*')
+      .eq('household_id', profile.household_id)
+      .order('name')
+      .then(({ data }) => {
+        if (data) {
+          setBankAccounts(data)
+          if (data.length === 1) setBankAccountId(data[0].id)
+        }
+      })
+  }, [profile?.household_id])
 
   const {
     register,
@@ -42,6 +60,11 @@ export function ContributionForm({
 
   async function onSubmit(data: ContributionFormData) {
     if (!user || !profile?.household_id) return
+
+    if (!bankAccountId) {
+      alert('Selecione uma conta bancária')
+      return
+    }
 
     setLoading(true)
 
@@ -73,17 +96,65 @@ export function ContributionForm({
           .eq('name', 'Desejo/Projeto')
           .maybeSingle()
 
+        const catId = categoryData?.id || null
+
+        const isTransfer = destinoAccountId && destinoAccountId !== bankAccountId
+
         await supabase.from('transactions').insert({
           household_id: profile.household_id,
           created_by: user.id,
           type: 'expense',
           amount,
-          description: `Aporte: ${project.name}`,
-          category_id: categoryData?.id || null,
+          description: isTransfer
+            ? `Aporte: ${project.name} (débito)`
+            : `Aporte: ${project.name}`,
+          category_id: catId,
           date: new Date().toISOString().split('T')[0],
           is_recurring: false,
           recurrence: null,
+          bank_account_id: bankAccountId,
         })
+
+        const { data: debitoAccount } = await supabase
+          .from('bank_accounts')
+          .select('current_balance')
+          .eq('id', bankAccountId)
+          .maybeSingle()
+
+        if (debitoAccount) {
+          await supabase
+            .from('bank_accounts')
+            .update({ current_balance: debitoAccount.current_balance - amount })
+            .eq('id', bankAccountId)
+        }
+
+        if (isTransfer) {
+          await supabase.from('transactions').insert({
+            household_id: profile.household_id,
+            created_by: user.id,
+            type: 'income',
+            amount,
+            description: `Aporte: ${project.name} (crédito)`,
+            category_id: catId,
+            date: new Date().toISOString().split('T')[0],
+            is_recurring: false,
+            recurrence: null,
+            bank_account_id: destinoAccountId,
+          })
+
+          const { data: creditoAccount } = await supabase
+            .from('bank_accounts')
+            .select('current_balance')
+            .eq('id', destinoAccountId)
+            .maybeSingle()
+
+          if (creditoAccount) {
+            await supabase
+              .from('bank_accounts')
+              .update({ current_balance: creditoAccount.current_balance + amount })
+              .eq('id', destinoAccountId)
+          }
+        }
       }
     } catch (error) {
       alert('Erro ao registrar aporte. Tente novamente.')
@@ -124,6 +195,57 @@ export function ContributionForm({
         {errors.amount && (
           <p className="mt-1 text-xs text-danger">{errors.amount.message}</p>
         )}
+      </div>
+
+      <div>
+        <label
+          htmlFor="contribution-account"
+          className="mb-1 block text-sm font-medium text-text-primary"
+        >
+          Conta de débito *
+        </label>
+        <select
+          id="contribution-account"
+          value={bankAccountId}
+          onChange={(e) => setBankAccountId(e.target.value)}
+          className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent focus:ring-1 focus:ring-accent"
+        >
+          <option value="">Selecione a conta...</option>
+          {bankAccounts.map((acc) => (
+            <option key={acc.id} value={acc.id}>
+              {acc.name}
+              {acc.bank_name ? ` - ${acc.bank_name}` : ''}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label
+          htmlFor="destino-account"
+          className="mb-1 block text-sm font-medium text-text-primary"
+        >
+          Conta de crédito (opcional)
+        </label>
+        <select
+          id="destino-account"
+          value={destinoAccountId}
+          onChange={(e) => setDestinoAccountId(e.target.value)}
+          className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent focus:ring-1 focus:ring-accent"
+        >
+          <option value="">Apenas débito (sem transferência)</option>
+          {bankAccounts
+            .filter((acc) => acc.id !== bankAccountId)
+            .map((acc) => (
+              <option key={acc.id} value={acc.id}>
+                {acc.name}
+                {acc.bank_name ? ` - ${acc.bank_name}` : ''}
+              </option>
+            ))}
+        </select>
+        <p className="mt-1 text-xs text-text-muted">
+          Se selecionada, o valor será transferido entre as contas (débito + crédito)
+        </p>
       </div>
 
       <div>

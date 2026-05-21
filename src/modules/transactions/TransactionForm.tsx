@@ -50,6 +50,11 @@ export function TransactionForm({
   const user = useAuthStore((s) => s.user)
   const profile = useAuthStore((s) => s.profile)
   const [loading, setLoading] = useState(false)
+  const [originalInstallment, setOriginalInstallment] = useState<{
+    id: string
+    card_id: string
+    total_installments: number
+  } | null>(null)
 
   const {
     register,
@@ -112,6 +117,26 @@ export function TransactionForm({
     }
   }, [type, isCreditCard, setValue, watch])
 
+  useEffect(() => {
+    if (editingTransaction?.installment_id) {
+      supabase
+        .from('installments')
+        .select('id, card_id, total_installments')
+        .eq('id', editingTransaction.installment_id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) {
+            setOriginalInstallment(data)
+            setValue('credit_card_id', data.card_id)
+            setValue('installments', data.total_installments.toString())
+            setValue('is_credit_card', true)
+          }
+        })
+    } else {
+      setOriginalInstallment(null)
+    }
+  }, [editingTransaction, setValue])
+
   function calculateFirstChargeDate(
     transactionDate: Date,
     closingDay: number
@@ -140,30 +165,44 @@ export function TransactionForm({
       let installmentId: string | null = null
 
       if (data.is_credit_card && data.credit_card_id && selectedCard) {
-        const transactionDate = new Date(data.date)
         const totalInstallments = parseInt(data.installments || '1')
 
-        const firstChargeDate = calculateFirstChargeDate(
-          transactionDate,
-          selectedCard.closing_day || 1
-        )
+        if (originalInstallment && originalInstallment.card_id === data.credit_card_id) {
+          await supabase
+            .from('installments')
+            .update({
+              description: data.description,
+              total_amount: amount,
+              total_installments: totalInstallments,
+              category_id: data.category_id || null,
+            })
+            .eq('id', originalInstallment.id)
+          installmentId = originalInstallment.id
+        } else {
+          const transactionDate = new Date(data.date)
+          const firstChargeDate = calculateFirstChargeDate(
+            transactionDate,
+            selectedCard.closing_day || 1
+          )
 
-        const { data: installmentData } = await supabase
-          .from('installments')
-          .insert({
-            card_id: data.credit_card_id,
-            description: data.description,
-            total_amount: amount,
-            total_installments: totalInstallments,
-            current_installment: 0,
-            first_charge_date: firstChargeDate,
-            category_id: data.category_id || null,
-          })
-          .select()
-          .maybeSingle()
+          const { data: installmentData } = await supabase
+            .from('installments')
+            .insert({
+              household_id: profile.household_id,
+              card_id: data.credit_card_id,
+              description: data.description,
+              total_amount: amount,
+              total_installments: totalInstallments,
+              current_installment: 0,
+              first_charge_date: firstChargeDate,
+              category_id: data.category_id || null,
+            })
+            .select()
+            .maybeSingle()
 
-        if (installmentData) {
-          installmentId = installmentData.id
+          if (installmentData) {
+            installmentId = installmentData.id
+          }
         }
       }
 
@@ -190,7 +229,7 @@ export function TransactionForm({
         const oldBankId = editingTransaction.bank_account_id
         const newBankId = data.is_credit_card ? null : (data.bank_account_id || null)
 
-        if (!editingTransaction.installment_id && oldBankId) {
+        if (oldBankId) {
           const { data: oldAccount } = await supabase
             .from('bank_accounts')
             .select('current_balance')
@@ -208,7 +247,7 @@ export function TransactionForm({
           }
         }
 
-        if (!data.is_credit_card && newBankId) {
+        if (newBankId) {
           const { data: newAccount } = await supabase
             .from('bank_accounts')
             .select('current_balance')

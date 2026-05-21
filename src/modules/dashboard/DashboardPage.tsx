@@ -91,6 +91,7 @@ export function DashboardPage() {
 
   useRealtimeSubscription('transactions', profile?.household_id ?? null, fetchData)
   useRealtimeSubscription('fixed_bills', profile?.household_id ?? null, fetchData)
+  useRealtimeSubscription('installments', profile?.household_id ?? null, fetchData)
 
   // Summary calculations
   const income = transactions
@@ -102,7 +103,16 @@ export function DashboardPage() {
     .reduce((sum, t) => sum + Number(t.amount), 0)
 
   // Committed: fixed bills + installments for this month
-  const fixedCommitted = bills.reduce((sum, b) => sum + Number(b.amount), 0)
+  const fixedCommitted = bills
+    .filter((b) => {
+      if (b.start_date) {
+        const billStart = new Date(b.start_date)
+        const monthStart = new Date(year, month, 1)
+        return billStart <= monthStart
+      }
+      return true
+    })
+    .reduce((sum, b) => sum + Number(b.amount), 0)
   const installmentCommitted = installments
     .filter((inst) => {
       const firstCharge = new Date(inst.first_charge_date)

@@ -51,6 +51,7 @@ export function CardsPage() {
   }, [fetchData])
 
   useRealtimeSubscription('credit_cards', profile?.household_id ?? null, fetchData)
+  useRealtimeSubscription('installments', profile?.household_id ?? null, fetchData)
 
   function getMonthInstallments(month: Date): Installment[] {
     return installments.filter((inst) => {

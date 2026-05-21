@@ -105,6 +105,20 @@ export function TransactionsPage() {
           .eq('id', transaction.bank_account_id)
       }
     }
+    if (transaction?.installment_id) {
+      const { data: inst } = await supabase
+        .from('installments')
+        .select('current_installment')
+        .eq('id', transaction.installment_id)
+        .maybeSingle()
+
+      if (inst && inst.current_installment > 0) {
+        await supabase
+          .from('installments')
+          .update({ current_installment: inst.current_installment - 1 })
+          .eq('id', transaction.installment_id)
+      }
+    }
     await supabase.from('transactions').delete().eq('id', id)
     fetchData()
   }

@@ -82,6 +82,7 @@ export interface BankAccount {
 
 export interface Installment {
   id: string
+  household_id: string
   card_id: string
   description: string
   total_amount: number

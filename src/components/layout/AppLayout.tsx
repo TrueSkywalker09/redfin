@@ -1,13 +1,16 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { MobileNav } from './MobileNav'
 import { useUIStore } from '@/store/uiStore'
+import { FloatingActionButton } from '@/components/ui/FloatingActionButton'
+import { QuickTransactionModal } from '@/modules/transactions/components/QuickTransactionModal'
 
 export function AppLayout() {
   const sidebarExpanded = useUIStore((s) => s.sidebarExpanded)
   const { pathname } = useLocation()
   const mainRef = useRef<HTMLElement>(null)
+  const [showQuickTx, setShowQuickTx] = useState(false)
 
   useEffect(() => {
     mainRef.current?.focus({ preventScroll: true })
@@ -24,6 +27,13 @@ export function AppLayout() {
       </a>
       <Sidebar />
       <MobileNav />
+
+      <FloatingActionButton onClick={() => setShowQuickTx(true)} />
+      <QuickTransactionModal
+        isOpen={showQuickTx}
+        onClose={() => setShowQuickTx(false)}
+        onSuccess={() => setShowQuickTx(false)}
+      />
 
       <main
         ref={mainRef}
