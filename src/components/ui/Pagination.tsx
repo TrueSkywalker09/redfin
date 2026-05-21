@@ -14,10 +14,11 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
-        className="flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-text-muted hover:bg-accent-light/50 hover:text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-sm text-text-muted hover:bg-accent-light/50 hover:text-text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        aria-label="Página anterior"
       >
         <ChevronLeft className="h-4 w-4" />
-        Anterior
+        <span className="hidden sm:inline">Anterior</span>
       </button>
       <span className="text-sm text-text-muted">
         Página {page} de {totalPages}
@@ -25,9 +26,10 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
       <button
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
-        className="flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-text-muted hover:bg-accent-light/50 hover:text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-sm text-text-muted hover:bg-accent-light/50 hover:text-text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        aria-label="Próxima página"
       >
-        Próximo
+        <span className="hidden sm:inline">Próximo</span>
         <ChevronRight className="h-4 w-4" />
       </button>
     </div>

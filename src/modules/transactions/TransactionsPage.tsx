@@ -200,6 +200,7 @@ export function TransactionsPage() {
     {
       key: 'category',
       header: 'Categoria',
+      hideOnMobile: true,
       render: (t) => (
         <span className="text-sm text-text-muted">
           {getCategoryName(t.category_id)}
@@ -209,6 +210,7 @@ export function TransactionsPage() {
     {
       key: 'bankAccount',
       header: 'Conta',
+      hideOnMobile: true,
       render: (t) => (
         <span className="text-sm text-text-muted">
           {getBankAccountName(t.bank_account_id)}

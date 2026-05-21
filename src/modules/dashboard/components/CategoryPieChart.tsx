@@ -60,8 +60,8 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
       <h3 className="mb-4 text-sm font-semibold text-text-primary">
         Gastos por categoria
       </h3>
-      <div role="img" aria-label="Gráfico de pizza mostrando gastos por categoria">
-        <ResponsiveContainer width="100%" height={300}>
+      <div role="img" aria-label="Gráfico de pizza mostrando gastos por categoria" className="h-[250px] sm:h-[300px]">
+        <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={dataWithTotal}

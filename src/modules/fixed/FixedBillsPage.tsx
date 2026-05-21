@@ -132,7 +132,7 @@ export function FixedBillsPage() {
             bills.map((bill) => (
               <div
                 key={bill.id}
-                className="flex items-center justify-between rounded-lg border border-border bg-bg p-3"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-lg border border-border bg-bg p-3"
               >
                 <div>
                   <p className="text-sm font-medium text-text-primary">
@@ -144,7 +144,7 @@ export function FixedBillsPage() {
                       'Sem categoria'}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 self-end sm:self-auto">
                   <span
                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                       bill.is_active

@@ -26,7 +26,7 @@ export function MonthSelector({ currentDate, onChange }: MonthSelectorProps) {
     currentDate.getFullYear() === new Date().getFullYear()
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-border bg-surface p-4 shadow-sm">
+    <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-surface p-4 shadow-sm flex-wrap">
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate(-1)}

@@ -7,6 +7,7 @@ export interface Column<T> {
   render: (item: T) => ReactNode
   sortable?: boolean
   className?: string
+  hideOnMobile?: boolean
 }
 
 interface DataTableProps<T> {
@@ -51,7 +52,7 @@ export function DataTable<T extends { id: string }>({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-border bg-surface">
+    <div className="overflow-x-auto rounded-xl border border-border bg-surface" role="region" aria-label="Tabela de dados">
       <table className="w-full text-left text-sm">
         <thead>
           <tr className="border-b border-border bg-accent-light/50">
@@ -70,7 +71,7 @@ export function DataTable<T extends { id: string }>({
                 }
                 className={`px-4 py-3 text-xs font-medium uppercase tracking-wider text-text-muted ${
                   col.sortable ? 'cursor-pointer select-none hover:text-text-primary' : ''
-                } ${col.className || ''}`}
+                } ${col.hideOnMobile ? 'hidden md:table-cell' : ''} ${col.className || ''}`}
                 onClick={() => {
                   if (col.sortable && onSort) onSort(col.key)
                 }}
@@ -110,7 +111,7 @@ export function DataTable<T extends { id: string }>({
               {columns.map((col) => (
                 <td
                   key={col.key}
-                  className={`px-4 py-3 ${col.className || ''}`}
+                  className={`px-4 py-3 ${col.hideOnMobile ? 'hidden md:table-cell' : ''} ${col.className || ''}`}
                 >
                   {col.render(item)}
                 </td>

@@ -57,8 +57,8 @@ export function IncomeExpenseChart({ data }: IncomeExpenseChartProps) {
       <h3 className="mb-4 text-sm font-semibold text-text-primary">
         Entradas vs. Saídas
       </h3>
-      <div role="img" aria-label="Gráfico de barras comparando entradas e saídas mensais">
-        <ResponsiveContainer width="100%" height={300}>
+      <div role="img" aria-label="Gráfico de barras comparando entradas e saídas mensais" className="h-[250px] sm:h-[300px]">
+        <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} barGap={4}>
           <CartesianGrid strokeDasharray="3 3" stroke="#E2E0DC" />
           <XAxis

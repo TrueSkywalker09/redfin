@@ -79,7 +79,7 @@ export function TransactionFilters({
 
       {/* Expandable filters */}
       {showFilters && (
-        <div className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-surface p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 rounded-lg border border-border bg-surface p-4">
           <div>
             <label className="mb-1 block text-xs font-medium text-text-muted">
               Tipo
@@ -89,36 +89,12 @@ export function TransactionFilters({
               onChange={(e) =>
                 updateFilters({ type: e.target.value as FilterState['type'] })
               }
-              className="rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary outline-none focus:border-accent"
+              className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary outline-none focus:border-accent"
             >
               <option value="">Todos</option>
               <option value="income">Entradas</option>
               <option value="expense">Saídas</option>
             </select>
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-medium text-text-muted">
-              De
-            </label>
-            <input
-              type="date"
-              value={filters.startDate}
-              onChange={(e) => updateFilters({ startDate: e.target.value })}
-              className="rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary outline-none focus:border-accent"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-medium text-text-muted">
-              Até
-            </label>
-            <input
-              type="date"
-              value={filters.endDate}
-              onChange={(e) => updateFilters({ endDate: e.target.value })}
-              className="rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary outline-none focus:border-accent"
-            />
           </div>
 
           <div>
@@ -130,7 +106,7 @@ export function TransactionFilters({
               onChange={(e) =>
                 updateFilters({ categoryId: e.target.value })
               }
-              className="rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary outline-none focus:border-accent"
+              className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary outline-none focus:border-accent"
             >
               <option value="">Todas</option>
               {categories.map((cat) => (
@@ -141,14 +117,40 @@ export function TransactionFilters({
             </select>
           </div>
 
+          <div>
+            <label className="mb-1 block text-xs font-medium text-text-muted">
+              De
+            </label>
+            <input
+              type="date"
+              value={filters.startDate}
+              onChange={(e) => updateFilters({ startDate: e.target.value })}
+              className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary outline-none focus:border-accent"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium text-text-muted">
+              Até
+            </label>
+            <input
+              type="date"
+              value={filters.endDate}
+              onChange={(e) => updateFilters({ endDate: e.target.value })}
+              className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary outline-none focus:border-accent"
+            />
+          </div>
+
           {hasActiveFilters && (
-            <button
-              onClick={clearFilters}
-              className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm text-text-muted hover:text-danger transition-colors"
-            >
-              <X className="h-4 w-4" />
-              Limpar
-            </button>
+            <div className="sm:col-span-full flex justify-end">
+              <button
+                onClick={clearFilters}
+                className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm text-text-muted hover:text-danger transition-colors"
+              >
+                <X className="h-4 w-4" />
+                Limpar
+              </button>
+            </div>
           )}
         </div>
       )}
