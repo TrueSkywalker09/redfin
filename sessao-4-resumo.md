@@ -72,6 +72,8 @@
 | **CategoryPieChart.tsx** | Altura responsiva: 250px mobile → 300px desktop |
 | **IncomeExpenseChart.tsx** | Altura responsiva: 250px mobile → 300px desktop |
 | **FixedBillsPage.tsx** | Cards viram coluna no mobile (info em cima, botões embaixo) |
+| **Sidebar.tsx** | Oculta em mobile com `hidden lg:flex` — não sobrepõe conteúdo |
+| **Modal.tsx** | `items-start sm:items-center` + `overflow-y-auto` — formulários longos podem ser rolados |
 
 ## Arquivos modificados/criados
 
