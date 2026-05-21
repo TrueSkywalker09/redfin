@@ -34,7 +34,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`fixed left-0 top-0 z-30 flex h-screen flex-col border-r border-border bg-surface transition-all duration-200 ${
+      className={`hidden lg:flex fixed left-0 top-0 z-30 h-screen flex-col border-r border-border bg-surface transition-all duration-200 ${
         sidebarExpanded ? 'w-sidebar' : 'w-sidebar-collapsed'
       }`}
     >
