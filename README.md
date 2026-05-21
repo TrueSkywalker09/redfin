@@ -6,12 +6,13 @@ Aplicativo web de controle financeiro para famílias/casais. React + Vite + Supa
 
 ## Funcionalidades
 
-- **Dashboard**: Resumo financeiro com gráficos (entradas vs saídas, gastos por categoria), contas a vencer
+- **Dashboard**: Resumo financeiro com gráficos (entradas vs saídas, gastos por categoria), contas a vencer, saldo livre
 - **Transações**: CRUD completo, filtros (tipo, categoria, data), busca, ordenação, paginação, export CSV
-- **Contas Fixas**: Contas recorrentes, painel mensal, marcar como pago com débito em conta
-- **Cartões de Crédito**: CRUD, parcelamento, progresso de pagamento
+- **Transação Rápida**: FAB mobile para lançamentos rápidos de entrada/saída com apenas valor, data e descrição
+- **Contas Fixas**: Contas recorrentes, painel mensal, marcar como pago com débito em conta, data de início
+- **Cartões de Crédito**: CRUD, parcelamento, progresso de pagamento, pagamento de parcela com débito em conta
 - **Contas Bancárias**: Saldo atualizado automaticamente, ajuste manual de saldo
-- **Projetos**: Metas financeiras com aportes e barra de progresso
+- **Projetos**: Metas financeiras com aportes, barra de progresso, débito em conta bancária e transferência entre contas
 - **Categorias**: Gerenciamento no módulo de configurações
 - **Máscara de Moeda**: Input monetário nativo com `Intl.NumberFormat` (formato BRL)
 - **Paginação**: Navegação com 25 registros por página
@@ -74,6 +75,7 @@ cp .env.example .env
 # - supabase/migrations/00002_correcoes_criticas.sql
 # - supabase/migrations/00003_novas_funcionalidades.sql
 # - supabase/migrations/00004_funcionalidades.sql
+# - supabase/migrations/00005_installments_household_id.sql
 
 # 4. Iniciar desenvolvimento
 npm run dev
@@ -90,17 +92,18 @@ VITE_SUPABASE_ANON_KEY=chave-anon-publica-do-seu-projeto
 
 1. Crie uma conta em [supabase.com](https://supabase.com)
 2. Crie um novo projeto
-3. Vá em **SQL Editor** e execute os 4 arquivos de migration em ordem:
+3. Vá em **SQL Editor** e execute os 5 arquivos de migration em ordem:
    - `supabase/migrations/00001_schema.sql`
    - `supabase/migrations/00002_correcoes_criticas.sql`
    - `supabase/migrations/00003_novas_funcionalidades.sql`
    - `supabase/migrations/00004_funcionalidades.sql`
+   - `supabase/migrations/00005_installments_household_id.sql`
 4. Vá em **Authentication > Settings** e habilite "Email + Password" como provedor
 5. Em **Authentication > Settings > Redirect URLs**, adicione:
    - `http://localhost:5173/**`
    - `https://seu-app.vercel.app/**`
 6. Vá em **Database > Replication** e ative Realtime para as tabelas:
-   - `transactions`, `fixed_bills`, `credit_cards`, `bank_accounts`, `projects`
+   - `transactions`, `fixed_bills`, `credit_cards`, `bank_accounts`, `projects`, `installments`
 7. Copie as credenciais de **Settings > API** para o `.env`
 
 ## Scripts
@@ -118,20 +121,20 @@ npm run lint     # ESLint
 src/
 ├── components/     # Componentes globais
 │   ├── layout/     # AppLayout, Sidebar, MobileNav
-│   └── ui/         # Modal, DataTable, CurrencyInput, Pagination, etc.
+│   └── ui/         # Modal, DataTable, CurrencyInput, Pagination, FloatingActionButton, etc.
 ├── lib/            # Supabase client, formatadores, types, hooks
 ├── store/          # Zustand stores (auth, ui)
 ├── modules/
 │   ├── auth/       # Login, cadastro, recuperação de senha
 │   ├── dashboard/  # Resumo financeiro, gráficos, contas a vencer
-│   ├── transactions/ # Entradas e saídas com filtros e paginação
+│   ├── transactions/ # Entradas e saídas com filtros, paginação, QuickTransactionModal
 │   ├── fixed/      # Contas fixas recorrentes
 │   ├── cards/      # Cartões de crédito e parcelas
 │   ├── bank-accounts/ # Contas bancárias e ajuste de saldo
 │   ├── projects/   # Projetos e aportes
 │   └── settings/   # Gerenciamento de categorias
 └── supabase/
-    └── migrations/ # SQL migrations (4 arquivos)
+    └── migrations/ # SQL migrations (5 arquivos)
 ```
 
 ## Deploy na Vercel
